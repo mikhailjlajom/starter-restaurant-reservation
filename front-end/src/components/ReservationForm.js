@@ -45,7 +45,7 @@ function ReservationForm() {
     // date and day checker part of function
     const newReservationDate = newReservation.reservation_date;
     const reservationDate = new Date(newReservationDate);
-    
+
     let reservationDay = reservationDate.getUTCDay();
 
     if (reservationDay === 2) {
@@ -58,10 +58,43 @@ function ReservationForm() {
     // time checker part of function
     // create variables for hours and minutes of reservationDate
 
-    let reservationHour = newReservation.reservation_time;
-    let reservationMins = newReservation.reservation_time;
+    let reservationHour = parseInt(newReservation.reservation_time.slice(0, 2));
+    let reservationMins = parseInt(newReservation.reservation_time.slice(3));
 
-    // create if statements comparing
+    console.log(reservationDate >= todaysDate && reservationHour < 12);
+    console.log(reservationDate, todaysDate);
+    // create if statements for time frame of reservation time
+
+    // checks if reservation time is on or before 10:30am
+    if (reservationHour <= 10 && reservationMins <= 30) {
+      errorsArray.push({ message: "The reservation time is before 10:30 AM." });
+    }
+
+    // checks if reservation time is from 9:30pm-10:30pm
+    if ((reservationHour === 21 && reservationMins >= 30) || (reservationHour === 22 && reservationMins <= 30)) {
+      errorsArray.push({
+        message:
+          "the restaurant closes at 10:30 PM and the customer needs to have time to enjoy their meal.",
+      });
+    }
+
+    // checks if reservation time is from 10:31pm onwards
+    if((reservationHour === 22 && reservationMins > 30) || (reservationHour >= 23)) {
+      errorsArray.push({
+        message: "the restaurant is closed"
+      })
+    }
+
+    // check if reservations that are made today are done after 12pm
+    if (
+      reservationDate >= todaysDate &&
+      reservationHour < 12 &&
+      reservationMins <=0
+    ) {
+      errorsArray.push({
+        message: "Reservations for today should be made after 12 noon.",
+      });
+    }
 
     if (errorsArray.length === 0) {
       return true;

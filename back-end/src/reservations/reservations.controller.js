@@ -50,8 +50,19 @@ async function validateReservation(req, res, next) {
 function reservationDateIsValid(req, res, next) {
   let dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
   const { data: { reservation_date } = {} } = req.body;
+  let date = new Date()
+  // let todaysDate = date.getDate()
+  let resDate = new Date(reservation_date)
+  let todaysDay = resDate.getUTCDay()
+
   if (!dateRegex.test(reservation_date)) {
-    return next({ status: 400, message: `reservation_date` });
+     next({ status: 400, message: `reservation_date` });
+  }
+  if (resDate < date) {
+     next({ status: 400, message: `future`})
+  }
+  if(todaysDay === 2) {
+     next({ status: 400, message: `closed`})
   }
   next();
 }
@@ -59,7 +70,7 @@ function reservationDateIsValid(req, res, next) {
 function reservationTimeIsValid(req, res, next) {
   let timeRegex = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
   const { data: { reservation_time } = {} } = req.body;
-
+  
   if (!timeRegex.test(reservation_time)) {
     return next({ status: 400, message: `reservation_time` });
   }
@@ -79,10 +90,7 @@ function peopleIsValid(req, res, next) {
 // will do a post method
 // can either send date as iso format or receive date from database in iso
 
-function formatDate(date) {
-  let formattedDate = new Date(date).toLocaleString();
-  return formattedDate;
-}
+
 
 async function create(req, res) {
   const newReservation = ({
@@ -94,9 +102,6 @@ async function create(req, res) {
     people,
   } = req.body.data);
 
-  newReservation["reservation_date"] = formatDate(
-    newReservation["reservation_date"]
-  );
 
   const createdReservation = await service.create(newReservation);
 

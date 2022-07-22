@@ -5,19 +5,20 @@
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const service = require("./reservations.service");
 
-// list reservations based on date query
+// validation middleware if reservation id exists
+async function reservationExists(req,res,next){
+  const {reservation_id} = req.params
+  const reservation = await service.read(reservation_id)
 
-// try to convert time to utc or epoch time
-async function list(req, res) {
-  let date = req.query.date;
-  let isoDate = new Date(date).toISOString();
+  if(reservation){
+    res.locals.reservation = reservation
+    return next()
+  }
+  next({ status: 404, message: `Reservation with ${reservation_Id} does not exist`})
 
-  const data = await service.list(isoDate);
-
-  res.json({ data });
 }
 
-// validation middleware
+// validation middleware for creation of reservation
 
 async function validateReservation(req, res, next) {
   if (!req.body.data) return next({ status: 400, message: "Data Missing!" });
@@ -58,7 +59,6 @@ function reservationDateIsValid(req, res, next) {
   let hours = parseInt(reservation_time.slice(0, 2));
   let mins = parseInt(reservation_time.slice(3));
   let resDateTime = new Date(resDate.setHours(hours + 1, mins));
-
 
   if (!dateRegex.test(reservation_date)) {
     next({ status: 400, message: `reservation_date` });
@@ -119,6 +119,17 @@ function peopleIsValid(req, res, next) {
   next();
 }
 
+// list reservations based on date query
+// try to convert time to utc or epoch time
+async function list(req, res) {
+  let date = req.query.date;
+  let isoDate = new Date(date).toISOString();
+
+  const data = await service.list(isoDate);
+
+  res.json({ data });
+}
+
 // create function that will interact with service file
 // will do a post method
 // can either send date as iso format or receive date from database in iso
@@ -138,6 +149,11 @@ async function create(req, res) {
   res.status(201).json({ data: createdReservation });
 }
 
+async function read(req,res) {
+  const {reservation} = res.locals
+  res.json({data: reservation})
+}
+
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [
@@ -147,4 +163,5 @@ module.exports = {
     peopleIsValid,
     asyncErrorBoundary(create),
   ],
+  read: [reservationExists, asyncErrorBoundary(read)]
 };

@@ -61,11 +61,9 @@ function ReservationForm() {
     let reservationHour = parseInt(newReservation.reservation_time.slice(0, 2));
     let reservationMins = parseInt(newReservation.reservation_time.slice(3));
 
-    console.log(reservationDate >= todaysDate && reservationHour < 12);
-    console.log(reservationDate, todaysDate);
     // create if statements for time frame of reservation time
-
     // checks if reservation time is on or before 10:30am
+    
     if (reservationHour <= 10 && reservationMins <= 30) {
       errorsArray.push({ message: "The reservation time is before 10:30 AM." });
     }

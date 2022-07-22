@@ -24,15 +24,15 @@ async function validateTable(req, res, next) {
   next();
 }
 
-function validateData(req,res,next){
-  const {data} = req.body
-  if(!data){
-    return next({status: 400, message: `Data is missing`})
+function validateData(req, res, next) {
+  const { data } = req.body;
+  if (!data) {
+    return next({ status: 400, message: `Data is missing` });
   }
-  if(!data.reservation_id) {
-    return next({status: 400, message: `reservation_id`})
+  if (!data.reservation_id) {
+    return next({ status: 400, message: `reservation_id` });
   }
-  next()
+  next();
 }
 
 // validate if table exists
@@ -51,7 +51,7 @@ async function tableExists(req, res, next) {
 async function reservationExists(req, res, next) {
   const { reservation_id } = req.body.data;
   const reservation = await service.readReservation(reservation_id);
-  
+
   if (reservation) {
     res.locals.reservation = reservation;
     return next();
@@ -63,10 +63,9 @@ async function reservationExists(req, res, next) {
 }
 
 // validate capacity for table if can accommodate reservation people
-function validateCapacityAndAvailability(req,res,next) {
+function validateCapacityAndAvailability(req, res, next) {
   let reservation = res.locals.reservation;
   let table = res.locals.table;
-
 
   if (table.reservation_id) {
     next({ status: 400, message: `Table ${table.table_id} is occupied.` });
@@ -78,6 +77,20 @@ function validateCapacityAndAvailability(req,res,next) {
       message: `Table does not have enough capacity. Seating for ${reservation.people} needed.`,
     });
   }
+  return next();
+}
+
+// validation for removing reservation_id from table
+async function validateDestroy(req, res, next) {
+  let { table_id } = req.params;
+  const table = await service.read(table_id);
+  
+  if (!table) {
+    return next({ status: 404, message: `${table_id} does not exist.` });
+  } else if(table && !table.reservation_id) {
+    return next({status: 400, message: `This table is not occupied`})
+  }
+  res.locals.table = table;
   return next();
 }
 
@@ -101,7 +114,7 @@ async function create(req, res) {
 // function updates the table that matches table_id, with reservation_id
 async function update(req, res, next) {
   let table = res.locals.table;
-  let reservation = res.locals.reservation
+  let reservation = res.locals.reservation;
 
   const updatedTable = {
     ...table,
@@ -110,6 +123,21 @@ async function update(req, res, next) {
 
   const data = await service.update(updatedTable);
   res.json({ data });
+}
+
+// function that removes the associated reservation_id of the table
+async function removeResId(req, res, next) {
+  let {table}= res.locals
+  let updatedTable = {
+    ...table,
+    ["reservation_id"]: null
+  }
+
+  // await service destroy function, pass in table_id
+  let response = await service.update(updatedTable);
+
+  // status 200 instead
+  res.status(200).json({data:response})
 }
 
 module.exports = {
@@ -121,5 +149,9 @@ module.exports = {
     asyncErrorBoundary(reservationExists),
     validateCapacityAndAvailability,
     asyncErrorBoundary(update),
+  ],
+  destroy: [
+    asyncErrorBoundary(validateDestroy),
+    asyncErrorBoundary(removeResId),
   ],
 };

@@ -40,10 +40,7 @@ function TableForm() {
     evt.preventDefault();
     try {
       const abortController = new AbortController();
-      const response = await createTable(
-        { data: newTable },
-        abortController.signal
-      );
+      await createTable({ data: newTable }, abortController.signal);
       history.push(`/dashboard`);
     } catch (error) {
       console.log(error);

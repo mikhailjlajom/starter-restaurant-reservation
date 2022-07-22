@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { listReservations, listTables } from "../utils/api";
+import { deleteTableResId, listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { previous, next, today } from "../utils/date-time";
 import { useHistory, Link } from "react-router-dom";
@@ -48,6 +48,7 @@ function Dashboard() {
     }
   }
 
+  // create variable for the useHistory
   const history = useHistory();
 
   // handlers for buttons prev, today, and next
@@ -62,6 +63,25 @@ function Dashboard() {
 
   const todayHandler = () => {
     history.push(`/dashboard`);
+  };
+
+  // handler for the finish button
+
+  const finishHandler = async (evt) => {
+    if (
+      window.confirm(`Is this table ready to seat new guests? 
+
+This cannot be undone.`)
+    ) {
+      evt.preventDefault();
+      let {tableIdFinish} = evt.target.dataset
+      
+      const abortController = new AbortController();
+      await deleteTableResId(tableIdFinish, abortController.signal);
+      history.go(0)
+    } else {
+      return null;
+    }
   };
 
   // add one hour to reservation to the dashboard, database server in ireland gmt+1
@@ -118,20 +138,20 @@ function Dashboard() {
           </Link>
         </td>
         <td>
-          <Link type="button" className="btn btn-secondary">
+          <button type="button" className="btn btn-secondary">
             Edit
-          </Link>
+          </button>
         </td>
         <td>
-          <Link type="button" className="btn btn-secondary">
+          <button type="button" className="btn btn-secondary">
             Cancel
-          </Link>
+          </button>
         </td>
       </tr>
     );
   });
 
-  // maps through the tables and renders all tables 
+  // maps through the tables and renders all tables
 
   const tablesList = tables.map((table, index) => {
     return (
@@ -139,10 +159,24 @@ function Dashboard() {
         <td>{table.table_id}</td>
         <td>{table.table_name}</td>
         <td>{table.capacity}</td>
-        <td data-table-id-status={table.table_id}>{table.reservation_id ? <>Occupied</> : <>Free</>}</td>
+        <td data-table-id-status={table.table_id}>
+          {table.reservation_id ? <p>Occupied</p> : <p>Free</p>}
+        </td>
+        <td>
+          {table.reservation_id ? (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              data-table-id-finish={table.table_id}
+              onClick={finishHandler}
+            >
+              Finish
+            </button>
+          ) : null}
+        </td>
       </tr>
-    )
-  })
+    );
+  });
 
   return (
     <main>

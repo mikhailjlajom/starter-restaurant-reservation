@@ -63,13 +63,16 @@ function ReservationForm() {
 
     // create if statements for time frame of reservation time
     // checks if reservation time is on or before 10:30am
-    
+
     if (reservationHour <= 10 && reservationMins <= 30) {
       errorsArray.push({ message: "The reservation time is before 10:30 AM." });
     }
 
     // checks if reservation time is from 9:30pm-10:30pm
-    if ((reservationHour === 21 && reservationMins >= 30) || (reservationHour === 22 && reservationMins <= 30)) {
+    if (
+      (reservationHour === 21 && reservationMins >= 30) ||
+      (reservationHour === 22 && reservationMins <= 30)
+    ) {
       errorsArray.push({
         message:
           "the restaurant closes at 10:30 PM and the customer needs to have time to enjoy their meal.",
@@ -77,17 +80,20 @@ function ReservationForm() {
     }
 
     // checks if reservation time is from 10:31pm onwards
-    if((reservationHour === 22 && reservationMins > 30) || (reservationHour >= 23)) {
+    if (
+      (reservationHour === 22 && reservationMins > 30) ||
+      reservationHour >= 23
+    ) {
       errorsArray.push({
-        message: "the restaurant is closed"
-      })
+        message: "the restaurant is closed",
+      });
     }
 
     // check if reservations that are made today are done after 12pm
     if (
       reservationDate >= todaysDate &&
       reservationHour < 12 &&
-      reservationMins <=0
+      reservationMins <= 0
     ) {
       errorsArray.push({
         message: "Reservations for today should be made after 12 noon.",
@@ -119,7 +125,7 @@ function ReservationForm() {
     try {
       if (dateTimeChecker()) {
         const abortController = new AbortController();
-        const response = await createReservation(
+        await createReservation(
           { data: newReservation },
           abortController.signal
         );

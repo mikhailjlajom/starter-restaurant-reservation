@@ -117,3 +117,10 @@ export async function updateTable(table_id, data, signal) {
   };
   return await fetchJson(url, options);
 }
+
+// api call to delete reservation_id from table to free it
+export async function deleteTableResId(table_id, signal) {
+  const url = `${API_BASE_URL}/tables/${table_id}/seat`;
+  const options = { method: "DELETE", signal };
+  return await fetchJson(url, options);
+}

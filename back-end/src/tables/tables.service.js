@@ -22,10 +22,12 @@ function update(updatedTable) {
   return knex("tables as t").where({ table_id: updatedTable.table_id }).update(updatedTable)
 }
 
+
 module.exports = {
   create,
   list,
   read,
   update,
   readReservation,
+  
 };

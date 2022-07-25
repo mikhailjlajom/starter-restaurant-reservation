@@ -80,6 +80,16 @@ function validateCapacityAndAvailability(req, res, next) {
   return next();
 }
 
+// validate status of reservation
+function validateStatus(req,res,next){
+  let {status} = res.locals.reservation
+  console.log(status)
+  if(status === "seated"){
+    return next({status: 400, message: `seated`})
+  }
+  next()
+}
+
 // validation for removing reservation_id from table
 async function validateDestroy(req, res, next) {
   let { table_id } = req.params;
@@ -128,25 +138,27 @@ async function update(req, res, next) {
 // function that removes the associated reservation_id of the table
 async function removeResId(req, res, next) {
   let {table}= res.locals
+  let res_id = table.reservation_id
   let updatedTable = {
     ...table,
     ["reservation_id"]: null
   }
 
-  // await service destroy function, pass in table_id
-  let response = await service.update(updatedTable);
+  // await service function removes res_id from table and changes status of reservation, pass in table_id
+  let response = await service.removeResIdStatFinish(updatedTable, res_id);
 
   // status 200 instead
   res.status(200).json({data:response})
 }
 
 module.exports = {
-  list: [list],
+  list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(validateTable), asyncErrorBoundary(create)],
   update: [
     validateData,
     asyncErrorBoundary(tableExists),
     asyncErrorBoundary(reservationExists),
+    validateStatus,
     validateCapacityAndAvailability,
     asyncErrorBoundary(update),
   ],

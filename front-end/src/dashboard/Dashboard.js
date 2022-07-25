@@ -74,11 +74,11 @@ function Dashboard() {
 This cannot be undone.`)
     ) {
       evt.preventDefault();
-      let {tableIdFinish} = evt.target.dataset
-      
+      let { tableIdFinish } = evt.target.dataset;
+
       const abortController = new AbortController();
       await deleteTableResId(tableIdFinish, abortController.signal);
-      history.go(0)
+      history.go(0);
     } else {
       return null;
     }
@@ -109,6 +109,7 @@ This cannot be undone.`)
       reservation_date,
       reservation_time,
       people,
+      status,
     } = reservation;
     if (reservations.length === 0) {
       return (
@@ -127,25 +128,33 @@ This cannot be undone.`)
         <td>{correctDate(reservation_date)}</td>
         <td>{reservation_time}</td>
         <td>{people}</td>
-        <td>status</td>
-        <td>
-          <Link
-            to={`/reservations/${reservation_id}/seat`}
-            type="button"
-            className="btn btn-secondary"
-          >
-            Seat
-          </Link>
+        <td data-reservation-id-status={reservation.reservation_id}>
+          {status}
         </td>
         <td>
-          <button type="button" className="btn btn-secondary">
-            Edit
-          </button>
+          {status === "booked" ? (
+            <Link
+              to={`/reservations/${reservation_id}/seat`}
+              type="button"
+              className="btn btn-secondary"
+            >
+              Seat
+            </Link>
+          ) : null}
         </td>
         <td>
-          <button type="button" className="btn btn-secondary">
-            Cancel
-          </button>
+          {status === "booked" ? (
+            <button type="button" className="btn btn-secondary">
+              Edit
+            </button>
+          ) : null}
+        </td>
+        <td>
+        {status === "booked" ? (
+            <button type="button" className="btn btn-secondary">
+              Cancel
+            </button>
+          ) : null}
         </td>
       </tr>
     );

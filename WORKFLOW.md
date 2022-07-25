@@ -16,7 +16,9 @@ git checkout main
 # pull latest merge changes
 git pull origin main
 
-# delete the branch both on github and locally
+# delete branch on github
+
+# delete the branch locally
 git branch -D US-01
 
 # redeploy to heroku

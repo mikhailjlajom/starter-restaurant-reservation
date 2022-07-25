@@ -47,23 +47,21 @@ function SeatReservation() {
   async function changeHandler(evt) {
     let tableVal = evt.target.value;
     setSelectedTable(tableVal);
-    
   }
-  
+
   // submit handler, will do put request
   // validate if capacity of table can accommodate #of people from reservation
 
   async function submitHandler(evt) {
     evt.preventDefault();
-    let data = {reservation_id}
-    const abortController = new AbortController()
-    
+    let data = { reservation_id };
+    const abortController = new AbortController();
+
     try {
-      let response = await updateTable(selectedTable, {data}, abortController.signal)
-      console.log(response)
-      history.push(`/dashboard`)
+      await updateTable(selectedTable, { data }, abortController.signal);
+      history.push(`/dashboard`);
     } catch (err) {
-      setError(err)
+      setError(err);
     }
   }
 
@@ -74,7 +72,7 @@ function SeatReservation() {
   return (
     <>
       <h1>Seat Reservation</h1>
-      <ErrorAlert error={error}/>
+      <ErrorAlert error={error} />
       <h3>{`# ${reservation.reservation_id} - ${reservation.first_name} ${reservation.last_name} on ${formattedDate} at ${reservation.reservation_time} for ${reservation.people}`}</h3>
       <form onSubmit={submitHandler}>
         <div className="form-group">

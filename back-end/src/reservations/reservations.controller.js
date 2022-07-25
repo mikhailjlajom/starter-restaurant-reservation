@@ -6,21 +6,23 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const service = require("./reservations.service");
 
 // validation middleware if reservation id exists
-async function reservationExists(req,res,next){
-  const {reservation_id} = req.params
-  const reservation = await service.read(reservation_id)
+async function reservationExists(req, res, next) {
+  const { reservation_id } = req.params;
+  const reservation = await service.read(reservation_id);
 
-  if(reservation){
-    res.locals.reservation = reservation
-    return next()
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
   }
-  next({ status: 404, message: `Reservation with ${reservation_Id} does not exist`})
-
+  next({
+    status: 404,
+    message: `Reservation with ${reservation_id} does not exist`,
+  });
 }
 
 // validation middleware for creation of reservation
 
-async function validateReservation(req, res, next) {
+function validateReservation(req, res, next) {
   if (!req.body.data) return next({ status: 400, message: "Data Missing!" });
   const {
     first_name,
@@ -29,9 +31,9 @@ async function validateReservation(req, res, next) {
     people,
     reservation_date,
     reservation_time,
-    // status,
+    status,
   } = req.body.data;
-  // let updatedStatus = status;
+
   if (
     !first_name ||
     !last_name ||
@@ -45,6 +47,12 @@ async function validateReservation(req, res, next) {
       message:
         "Please complete the following: first_name, last_name, mobile_number, people, reservation_date, and reservation_time.",
     });
+  if (status === "seated") {
+    return next({ status: 400, message: `seated` });
+  }
+  if (status === "finished") {
+    return next({ status: 400, message: `finished` });
+  }
   next();
 }
 
@@ -119,6 +127,27 @@ function peopleIsValid(req, res, next) {
   next();
 }
 
+// checks the status of the reservation
+// should return 400 if unknown status
+// should return 400 if status is currently finished
+// returns 200 for status booked, seated, finished
+
+function statusValid(req, res, next) {
+  let reservation = res.locals.reservation;
+  const {data = {}} = req.body
+  const status = data["status"]
+  if (reservation.status === "finished") {
+    return next({
+      status: 400,
+      message: `Can't update status, status is already finished`,
+    });
+  }
+  if(status === "booked" || status === "seated" || status === "finished" || status === "cancelled"){
+    return next()
+  }
+  return next({status: 400, message: `Status is unknown.`})
+}
+
 // list reservations based on date query
 // try to convert time to utc or epoch time
 async function list(req, res) {
@@ -135,23 +164,28 @@ async function list(req, res) {
 // can either send date as iso format or receive date from database in iso
 
 async function create(req, res) {
-  const newReservation = ({
-    first_name,
-    last_name,
-    mobile_number,
-    reservation_date,
-    reservation_time,
-    people,
-  } = req.body.data);
+  const { data } = req.body;
+  const newReservation = { ...data, ["status"]: "booked" };
 
   const createdReservation = await service.create(newReservation);
 
   res.status(201).json({ data: createdReservation });
 }
 
-async function read(req,res) {
-  const {reservation} = res.locals
-  res.json({data: reservation})
+async function read(req, res) {
+  const { reservation } = res.locals;
+  res.json({ data: reservation });
+}
+
+async function updateStatus(req, res, next) {
+  let reservation = res.locals.reservation
+  const {status} = req.body.data
+  const updatedReservation = {
+    ...reservation, status
+  }
+
+  const data = await service.updateStatus(updatedReservation)
+  res.json({ data });
 }
 
 module.exports = {
@@ -163,5 +197,6 @@ module.exports = {
     peopleIsValid,
     asyncErrorBoundary(create),
   ],
-  read: [reservationExists, asyncErrorBoundary(read)]
+  read: [reservationExists, asyncErrorBoundary(read)],
+  updateStatus: [reservationExists, statusValid, asyncErrorBoundary(updateStatus)],
 };

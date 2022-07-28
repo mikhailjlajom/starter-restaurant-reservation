@@ -4,6 +4,9 @@ import ErrorAlert from "../layout/ErrorAlert";
 import { previous, next, today } from "../utils/date-time";
 import { useHistory, Link } from "react-router-dom";
 import useQuery from "../utils/useQuery";
+import ReservationTable from "../components/ReservationTable";
+import NoReservations from "../components/NoReservations";
+import ReservationList from "../components/ReservationList";
 
 /**
  * Defines the dashboard page.
@@ -98,68 +101,6 @@ This cannot be undone.`)
     return finalDate.slice(0, 9);
   }
 
-  // maps through the reservation and renders all reservations for the date
-
-  const reservationsList = reservations.map((reservation, index) => {
-    const {
-      reservation_id,
-      first_name,
-      last_name,
-      mobile_number,
-      reservation_date,
-      reservation_time,
-      people,
-      status,
-    } = reservation;
-    if (reservations.length === 0) {
-      return (
-        <tr>
-          <td colSpan={6}> No Reservations Found.</td>
-        </tr>
-      );
-    }
-    return (
-      <tr key={index}>
-        <td>{reservation_id}</td>
-        <td>
-          {first_name} {last_name}
-        </td>
-        <td>{mobile_number}</td>
-        <td>{correctDate(reservation_date)}</td>
-        <td>{reservation_time}</td>
-        <td>{people}</td>
-        <td data-reservation-id-status={reservation.reservation_id}>
-          {status}
-        </td>
-        <td>
-          {status === "booked" ? (
-            <Link
-              to={`/reservations/${reservation_id}/seat`}
-              type="button"
-              className="btn btn-secondary"
-            >
-              Seat
-            </Link>
-          ) : null}
-        </td>
-        <td>
-          {status === "booked" ? (
-            <button type="button" className="btn btn-secondary">
-              Edit
-            </button>
-          ) : null}
-        </td>
-        <td>
-        {status === "booked" ? (
-            <button type="button" className="btn btn-secondary">
-              Cancel
-            </button>
-          ) : null}
-        </td>
-      </tr>
-    );
-  });
-
   // maps through the tables and renders all tables
 
   const tablesList = tables.map((table, index) => {
@@ -219,22 +160,7 @@ This cannot be undone.`)
             </button>
           </div>
           <ErrorAlert error={reservationsError || tablesError} />
-          <div className="table-responsive">
-            <table className="table no-wrap">
-              <thead>
-                <tr>
-                  <th className="border-top-0">#</th>
-                  <th className="border-top-0">NAME</th>
-                  <th className="border-top-0">PHONE</th>
-                  <th className="border-top-0">DATE</th>
-                  <th className="border-top-0">TIME</th>
-                  <th className="border-top-0">PEOPLE</th>
-                  <th className="border-top-0">STATUS</th>
-                </tr>
-              </thead>
-              <tbody>{reservationsList}</tbody>
-            </table>
-          </div>
+          <ReservationList reservations={reservations} correctDate={correctDate}/>
         </div>
         <div className="col-md-6 col-lg-6 col-sm-12">
           <div className="table-responsive">

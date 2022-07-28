@@ -134,27 +134,39 @@ function peopleIsValid(req, res, next) {
 
 function statusValid(req, res, next) {
   let reservation = res.locals.reservation;
-  const {data = {}} = req.body
-  const status = data["status"]
+  const { data = {} } = req.body;
+  const status = data["status"];
   if (reservation.status === "finished") {
     return next({
       status: 400,
       message: `Can't update status, status is already finished`,
     });
   }
-  if(status === "booked" || status === "seated" || status === "finished" || status === "cancelled"){
-    return next()
+  if (
+    status === "booked" ||
+    status === "seated" ||
+    status === "finished" ||
+    status === "cancelled"
+  ) {
+    return next();
   }
-  return next({status: 400, message: `Status is unknown.`})
+  return next({ status: 400, message: `Status is unknown.` });
 }
 
 // list reservations based on date query
 // try to convert time to utc or epoch time
 async function list(req, res) {
   let date = req.query.date;
-  let isoDate = new Date(date).toISOString();
+  // let isoDate = new Date(date).toISOString();
 
-  const data = await service.list(isoDate);
+  let phoneNumber = req.query.mobile_number;
+  console.log(phoneNumber);
+  if (phoneNumber) {
+    const data = await service.search(phoneNumber);
+    return res.json({ data });
+  }
+
+  const data = await service.list(date);
 
   res.json({ data });
 }
@@ -178,13 +190,14 @@ async function read(req, res) {
 }
 
 async function updateStatus(req, res, next) {
-  let reservation = res.locals.reservation
-  const {status} = req.body.data
+  let reservation = res.locals.reservation;
+  const { status } = req.body.data;
   const updatedReservation = {
-    ...reservation, status
-  }
+    ...reservation,
+    status,
+  };
 
-  const data = await service.updateStatus(updatedReservation)
+  const data = await service.updateStatus(updatedReservation);
   res.json({ data });
 }
 
@@ -198,5 +211,9 @@ module.exports = {
     asyncErrorBoundary(create),
   ],
   read: [reservationExists, asyncErrorBoundary(read)],
-  updateStatus: [reservationExists, statusValid, asyncErrorBoundary(updateStatus)],
+  updateStatus: [
+    reservationExists,
+    statusValid,
+    asyncErrorBoundary(updateStatus),
+  ],
 };

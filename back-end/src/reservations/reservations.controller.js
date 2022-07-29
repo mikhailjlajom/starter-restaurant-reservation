@@ -139,7 +139,7 @@ function statusValid(req, res, next) {
   let reservation = res.locals.reservation;
   const { data = {} } = req.body;
   const status = data["status"];
-  console.log(data, status)
+  
   if (reservation.status === "finished") {
     return next({
       status: 400,
@@ -194,7 +194,7 @@ async function read(req, res) {
 
 async function updateReservation(req, res, next) {
   let reservation = req.body.data;
-  console.log(reservation);
+  
   const updatedReservation = {
     ...reservation,
   };

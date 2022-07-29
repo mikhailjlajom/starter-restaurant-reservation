@@ -83,7 +83,7 @@ function validateCapacityAndAvailability(req, res, next) {
 // validate status of reservation
 function validateStatus(req,res,next){
   let {status} = res.locals.reservation
-  console.log(status)
+  
   if(status === "seated"){
     return next({status: 400, message: `seated`})
   }

@@ -91,9 +91,11 @@ function TableForm() {
             className="btn btn-secondary mr-2"
             onClick={cancelClick}
           >
+            <span className="oi oi-x"></span>
             Cancel
           </button>
           <button type="submit" className="btn btn-primary">
+          <span className="oi oi-check"></span>
             Submit
           </button>
         </fieldset>

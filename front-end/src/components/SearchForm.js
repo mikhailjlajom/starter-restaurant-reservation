@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ErrorAlert from "../layout/ErrorAlert";
 import { listReservations } from "../utils/api";
 import ReservationList from "./ReservationList";
 
@@ -9,6 +10,7 @@ function SearchForm() {
 
   const [numberSearch, setNumberSearch] = useState(initialSearchState);
   const [reservations, setReservations] = useState([]);
+  const [reservationsError, setReservationsError] = useState(null)
 
   function correctDate(date) {
     let correctedDate = new Date(date);
@@ -45,7 +47,7 @@ function SearchForm() {
       setReservations(response);
       setNumberSearch(initialSearchState);
     } catch (error) {
-      console.log(error);
+      setReservationsError(error);
     }
   }
 
@@ -53,6 +55,7 @@ function SearchForm() {
     <div>
       <h1>Search Reservations</h1>
       <fieldset>
+        <ErrorAlert error={reservationsError}/>
         <div className="row">
           <div className="form-group col-md-6 col-sm-12">
             <form onSubmit={findHandler}>

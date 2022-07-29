@@ -143,10 +143,11 @@ This cannot be undone.`)
               onClick={prevHandler}
             >
               Previous
+              <span className="oi oi-arrow-left"></span>
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary mx-1"
               onClick={todayHandler}
             >
               Today
@@ -156,6 +157,7 @@ This cannot be undone.`)
               className="btn btn-secondary"
               onClick={nextHandler}
             >
+              <span className="oi oi-arrow-right"></span>
               Next
             </button>
           </div>
@@ -169,7 +171,7 @@ This cannot be undone.`)
         <div className="col-md-6 col-lg-6 col-sm-12">
           <div className="table-responsive">
             <table className="table no-wrap">
-              <thead>
+              <thead className="thead-light">
                 <tr>
                   <th className="border-top-0">#</th>
                   <th className="border-top-0">TABLE NAME</th>

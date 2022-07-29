@@ -33,8 +33,8 @@ function ReservationTable({ reservations, correctDate, cancelResHandler }) {
             <Link
               to={`/reservations/${reservation_id}/seat`}
               type="button"
-              className="btn btn-secondary"
-            >
+              className="btn btn-primary"
+            > <span className="oi oi-person"></span>
               Seat
             </Link>
           ) : null}
@@ -45,7 +45,7 @@ function ReservationTable({ reservations, correctDate, cancelResHandler }) {
               type="button"
               className="btn btn-secondary"
               to={`/reservations/${reservation_id}/edit`}
-            >
+            > <span className="oi oi-pencil"></span>
               Edit
             </Link>
           ) : null}
@@ -54,10 +54,10 @@ function ReservationTable({ reservations, correctDate, cancelResHandler }) {
           {status === "booked" ? (
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-danger"
               data-reservation-id-cancel={reservation.reservation_id}
               onClick={cancelResHandler}
-            >
+            > <span className="oi oi-x"></span>
               Cancel
             </button>
           ) : null}

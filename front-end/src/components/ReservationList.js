@@ -6,7 +6,7 @@ function ReservationList({reservations, correctDate, cancelResHandler}) {
     return (
         <div className="table-responsive">
         <table className="table no-wrap">
-          <thead>
+          <thead className="thead-light">
             <tr>
               <th className="border-top-0">#</th>
               <th className="border-top-0">NAME</th>

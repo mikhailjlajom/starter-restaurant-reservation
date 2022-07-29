@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { readReservation, updateReservation } from "../utils/api";
 import { useHistory, useParams } from "react-router";
 import ReservationsForm from "./ReservationsForm";
+import ErrorAlert from "../layout/ErrorAlert";
 
 
 function EditReservation() {
@@ -56,13 +57,14 @@ function EditReservation() {
       await updateReservation(reservation, abortController.signal);
       history.push(`/dashboard?date=${reservation.reservation_date}`)
     } catch (error) {
-      console.log(error);
+      setError(error);
     }
   }
 
   return (
     <div>
       <h1>Edit Reservation</h1>
+      <ErrorAlert error={error}/>
       <ReservationsForm
         reservation={reservation}
         changeHandler={changeHandler}

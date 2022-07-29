@@ -12,6 +12,7 @@ async function reservationExists(req, res, next) {
 
   if (reservation) {
     res.locals.reservation = reservation;
+
     return next();
   }
   next({
@@ -47,11 +48,13 @@ function validateReservation(req, res, next) {
       message:
         "Please complete the following: first_name, last_name, mobile_number, people, reservation_date, and reservation_time.",
     });
-  if (status === "seated") {
-    return next({ status: 400, message: `seated` });
-  }
-  if (status === "finished") {
-    return next({ status: 400, message: `finished` });
+  if (status !== "booked") {
+    if (status === "seated") {
+      return next({ status: 400, message: `seated` });
+    }
+    if (status === "finished") {
+      return next({ status: 400, message: `finished` });
+    }
   }
   next();
 }
@@ -64,9 +67,8 @@ function reservationDateIsValid(req, res, next) {
   const resDate = new Date(reservation_date);
 
   let todaysDay = resDate.getUTCDay();
-  let hours = parseInt(reservation_time.slice(0, 2));
-  let mins = parseInt(reservation_time.slice(3));
-  let resDateTime = new Date(resDate.setHours(hours + 1, mins));
+
+  let resDateTime = new Date(`${reservation_date}T${reservation_time}`);
 
   if (!dateRegex.test(reservation_date)) {
     next({ status: 400, message: `reservation_date` });
@@ -77,6 +79,7 @@ function reservationDateIsValid(req, res, next) {
   if (todaysDay === 2) {
     next({ status: 400, message: `closed` });
   }
+
   next();
 }
 
@@ -84,14 +87,14 @@ function reservationDateIsValid(req, res, next) {
 // same validation as front end
 
 function reservationTimeIsValid(req, res, next) {
-  let timeRegex = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+  let timeFormat = /\d\d:\d\d/;
   const { data: { reservation_time } = {} } = req.body;
 
   let reservationHours = parseInt(reservation_time.slice(0, 2));
   let reservationMins = parseInt(reservation_time.slice(3));
 
   // checks if time is proper format
-  if (!timeRegex.test(reservation_time)) {
+  if (!timeFormat.test(reservation_time)) {
     return next({ status: 400, message: `reservation_time` });
   }
 
@@ -115,12 +118,12 @@ function reservationTimeIsValid(req, res, next) {
   ) {
     return next({ status: 400, message: `something with time` });
   }
+
   next();
 }
 
 function peopleIsValid(req, res, next) {
   const { data: { people } = {} } = req.body;
-  console.log("checking people", typeof people);
   if (typeof people !== "number") {
     return next({ status: 400, message: `people` });
   }
@@ -136,6 +139,7 @@ function statusValid(req, res, next) {
   let reservation = res.locals.reservation;
   const { data = {} } = req.body;
   const status = data["status"];
+  console.log(data, status)
   if (reservation.status === "finished") {
     return next({
       status: 400,
@@ -157,10 +161,9 @@ function statusValid(req, res, next) {
 // try to convert time to utc or epoch time
 async function list(req, res) {
   let date = req.query.date;
-  // let isoDate = new Date(date).toISOString();
 
   let phoneNumber = req.query.mobile_number;
-  console.log(phoneNumber);
+
   if (phoneNumber) {
     const data = await service.search(phoneNumber);
     return res.json({ data });
@@ -189,6 +192,16 @@ async function read(req, res) {
   res.json({ data: reservation });
 }
 
+async function updateReservation(req, res, next) {
+  let reservation = req.body.data;
+  console.log(reservation);
+  const updatedReservation = {
+    ...reservation,
+  };
+  const data = await service.updateReservation(updatedReservation);
+  res.json({ data });
+}
+
 async function updateStatus(req, res, next) {
   let reservation = res.locals.reservation;
   const { status } = req.body.data;
@@ -215,5 +228,13 @@ module.exports = {
     reservationExists,
     statusValid,
     asyncErrorBoundary(updateStatus),
+  ],
+  updateReservation: [
+    reservationExists,
+    validateReservation,
+    reservationDateIsValid,
+    reservationTimeIsValid,
+    peopleIsValid,
+    asyncErrorBoundary(updateReservation),
   ],
 };

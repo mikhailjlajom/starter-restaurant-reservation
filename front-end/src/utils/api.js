@@ -59,9 +59,9 @@ async function fetchJson(url, options, onCancel) {
  */
 
 // api call to list tables on dashboard
-export async function listTables(signal){
-  const url = new URL(`${API_BASE_URL}/tables`)
-  return await fetchJson(url, {headers, signal }, [])
+export async function listTables(signal) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  return await fetchJson(url, { headers, signal }, []);
 }
 
 // api call to list reservations on dashboard
@@ -87,23 +87,23 @@ export async function createReservation(data, signal) {
   return await fetchJson(url, options);
 }
 
-
 // create table api call
 export async function createTable(data, signal) {
-  const url = new URL(`${API_BASE_URL}/tables`)
+  const url = new URL(`${API_BASE_URL}/tables`);
   const options = {
     headers,
     signal,
     method: "POST",
     body: JSON.stringify(data),
-  }
-  return await fetchJson(url, options)
+  };
+  return await fetchJson(url, options);
 }
 
 // api call to get reservation info
 export async function readReservation(reservation_id, signal) {
   const url = `${API_BASE_URL}/reservations/${reservation_id}`;
-  return await fetchJson(url, { signal });
+  return await fetchJson(url, { signal })
+  .then(formatReservationDate)
 }
 
 // api call to update table
@@ -122,5 +122,29 @@ export async function updateTable(table_id, data, signal) {
 export async function deleteTableResId(table_id, signal) {
   const url = `${API_BASE_URL}/tables/${table_id}/seat`;
   const options = { method: "DELETE", signal };
+  return await fetchJson(url, options);
+}
+
+export async function cancelReservation(reservation_id, data, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
+
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data }),
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+export async function updateReservation(updatedReservation, signal) {
+  console.log(updatedReservation);
+  const url = `${API_BASE_URL}/reservations/${updatedReservation.reservation_id}`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: updatedReservation }),
+    signal,
+  };
   return await fetchJson(url, options);
 }

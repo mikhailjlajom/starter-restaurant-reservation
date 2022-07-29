@@ -2,7 +2,7 @@ import React from "react";
 import ReservationTable from "./ReservationTable";
 import NoReservations from "./NoReservations";
 
-function ReservationList({reservations, correctDate}) {
+function ReservationList({reservations, correctDate, cancelResHandler}) {
     return (
         <div className="table-responsive">
         <table className="table no-wrap">
@@ -17,14 +17,17 @@ function ReservationList({reservations, correctDate}) {
               <th className="border-top-0">STATUS</th>
             </tr>
           </thead>
+          <tbody>
           {reservations?.length ? (
             <ReservationTable
               reservations={reservations}
               correctDate={correctDate}
+              cancelResHandler={cancelResHandler}
             />
           ) : (
             <NoReservations />
           )}
+          </tbody>
         </table>
       </div>
     )

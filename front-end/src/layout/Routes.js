@@ -3,16 +3,17 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import { today } from "../utils/date-time";
-import ReservationForm from "../components/ReservationForm";
 import TableForm from "../components/TableForm";
 import SeatReservation from "../components/SeatReservation";
-import SearchForm from "../components/SearchForm"
+import SearchForm from "../components/SearchForm";
+import CreateReservation from "../components/CreateReservation"
+import EditReservation from "../components/EditReservation";
 
 /**
  * Defines all the routes for the application.
  *
  * You will need to make changes to this file.
- *
+ * 
  * @returns {JSX.Element}
  */
 function Routes() {
@@ -25,10 +26,13 @@ function Routes() {
         <Redirect to={"/dashboard"} />
       </Route>
       <Route path="/reservations/new">
-        <ReservationForm />
+        <CreateReservation />
       </Route>
       <Route path="/reservations/:reservation_id/seat">
         <SeatReservation />
+      </Route>
+      <Route path="/reservations/:reservation_id/edit">
+        <EditReservation />
       </Route>
       <Route path="/dashboard">
         <Dashboard date={today()} />

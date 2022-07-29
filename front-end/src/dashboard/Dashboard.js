@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { deleteTableResId, listReservations, listTables } from "../utils/api";
+import {
+  cancelReservation,
+  deleteTableResId,
+  listReservations,
+  listTables,
+} from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { previous, next, today } from "../utils/date-time";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import useQuery from "../utils/useQuery";
-import ReservationTable from "../components/ReservationTable";
-import NoReservations from "../components/NoReservations";
 import ReservationList from "../components/ReservationList";
+import TableList from "../components/TableList";
 
 /**
  * Defines the dashboard page.
@@ -68,6 +72,27 @@ function Dashboard() {
     history.push(`/dashboard`);
   };
 
+  const cancelResHandler = async (evt) => {
+    if (
+      window.confirm(`Do you want to cancel this reservation?
+      
+This cannot be undone.`)
+    ) {
+      evt.preventDefault();
+      let { reservationIdCancel } = evt.target.dataset;
+      let data = {status:"cancelled"}
+      const abortController = new AbortController();
+      await cancelReservation(
+        reservationIdCancel,
+        data,
+        abortController.signal
+      );
+      history.go(0)
+    } else {
+      return null;
+    }
+  };
+
   // handler for the finish button
 
   const finishHandler = async (evt) => {
@@ -103,31 +128,6 @@ This cannot be undone.`)
 
   // maps through the tables and renders all tables
 
-  const tablesList = tables.map((table, index) => {
-    return (
-      <tr key={index}>
-        <td>{table.table_id}</td>
-        <td>{table.table_name}</td>
-        <td>{table.capacity}</td>
-        <td data-table-id-status={table.table_id}>
-          {table.reservation_id ? <p>Occupied</p> : <p>Free</p>}
-        </td>
-        <td>
-          {table.reservation_id ? (
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary"
-              data-table-id-finish={table.table_id}
-              onClick={finishHandler}
-            >
-              Finish
-            </button>
-          ) : null}
-        </td>
-      </tr>
-    );
-  });
-
   return (
     <main>
       <h1>Dashboard</h1>
@@ -160,7 +160,11 @@ This cannot be undone.`)
             </button>
           </div>
           <ErrorAlert error={reservationsError || tablesError} />
-          <ReservationList reservations={reservations} correctDate={correctDate}/>
+          <ReservationList
+            reservations={reservations}
+            correctDate={correctDate}
+            cancelResHandler={cancelResHandler}
+          />
         </div>
         <div className="col-md-6 col-lg-6 col-sm-12">
           <div className="table-responsive">
@@ -173,7 +177,9 @@ This cannot be undone.`)
                   <th className="border-top-0">FREE?</th>
                 </tr>
               </thead>
-              <tbody>{tablesList}</tbody>
+              <tbody>
+                <TableList tables={tables} finishHandler={finishHandler} />
+              </tbody>
             </table>
           </div>
         </div>

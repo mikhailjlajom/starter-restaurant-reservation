@@ -14,7 +14,9 @@
 
 ## Dashboard (/dashboard)
 
-![]("C:\Users\mikha\Thinkful\c59\project-restaurant-reservation\starter-restaurant-reservation\deployed-screenshots\CreateReservation.png")
+![](/deployed-screenshots/Dashboard.png)
+
+![](/deployed-screenshots/DashboardButtons.png)
 
 1. List all reservations for date (defaulted to today's date), reservations are sorted by time
   - shows details of the reservation including Name, Phone number, Date, Time, # of People, and status
@@ -31,11 +33,15 @@
 
 ## Search (/search)
 
+![](/deployed-screenshots/Search.png)
+
 1. Searches reservation/reservations by phone number. 
   - Reservations that are found by phone number will be sorted by time
   - Reservations shown will have all details including status and buttons Seat, Edit, and Cancel
 
 ## Creating a reservation (/reservations/new)
+
+![](/deployed-screenshots/CreateReservation.png)
 
 1. Creates a new reservation with a Form to fill out
   - All fields are required
@@ -43,11 +49,15 @@
 
 ## Editing an existing reservation (/reservations/edit)
 
+![](/deployed-screenshots/EditReservation.png)
+
 1. Edits an existing reservation with the same form used in Creating a reservation but details are autofilled. 
   - Cancelling the edit goes back to previous page
   - Submitting the editted reservation returns the user to the dashboard for the date of the edited reservation
 
 ## Seat a reservation (/reservations/:reservation_id/seat)
+
+![](/deployed-screenshots/SeatReservation.png)
 
 1. Seats a reservation to a table.
   - Select options to choose which table to seat reservation
@@ -56,6 +66,8 @@
   - Cancelling the form brings user to the previous page
 
 ## Create a table (/tables/new)
+
+![](/deployed-screenshots/CreateTable.png)
 
 1. Creates a new table
   - Creates a new table with a form

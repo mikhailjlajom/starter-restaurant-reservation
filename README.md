@@ -14,6 +14,8 @@
 
 ## Dashboard (/dashboard)
 
+![]("C:\Users\mikha\Thinkful\c59\project-restaurant-reservation\starter-restaurant-reservation\deployed-screenshots\CreateReservation.png")
+
 1. List all reservations for date (defaulted to today's date), reservations are sorted by time
   - shows details of the reservation including Name, Phone number, Date, Time, # of People, and status
   - display buttons
@@ -26,3 +28,37 @@
 3. Buttons to switch dates, going to previous, today, or next date
 
 4. Any errors will appear above the table
+
+## Search (/search)
+
+1. Searches reservation/reservations by phone number. 
+  - Reservations that are found by phone number will be sorted by time
+  - Reservations shown will have all details including status and buttons Seat, Edit, and Cancel
+
+## Creating a reservation (/reservations/new)
+
+1. Creates a new reservation with a Form to fill out
+  - All fields are required
+  - Any errors upon creating a reservation will appear above the table eg. Incorrect reservation time, and date.
+
+## Editing an existing reservation (/reservations/edit)
+
+1. Edits an existing reservation with the same form used in Creating a reservation but details are autofilled. 
+  - Cancelling the edit goes back to previous page
+  - Submitting the editted reservation returns the user to the dashboard for the date of the edited reservation
+
+## Seat a reservation (/reservations/:reservation_id/seat)
+
+1. Seats a reservation to a table.
+  - Select options to choose which table to seat reservation
+  - If any errors upon seating happen, will be shown above of the form
+  - Submitting form will bring user to dashboard with table now being occupied and finish button appears
+  - Cancelling the form brings user to the previous page
+
+## Create a table (/tables/new)
+
+1. Creates a new table
+  - Creates a new table with a form
+  - Any errors upon submitting will appear above the form
+  - Submitting the form will bring user to dashboard with newly added table to the list
+  - Cancelling the form will bring user back to previous page
